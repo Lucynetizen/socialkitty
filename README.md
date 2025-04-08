@@ -1,4 +1,4 @@
-<h1 align="center">✨ Next.js Social Media App - Social Kitty ✨</h1>
+<h1 align="center">✨ Next.js Social Media App - Social Kitty✨</h1>
 
 Highlights:
 
@@ -15,3 +15,4 @@ Highlights:
 - 🗃️ Database Integration with Prisma
 - 🚀 Server Actions & Forms
 - ⚡ Optimistic Updates
+
