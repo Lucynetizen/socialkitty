@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import ImageUpload from "@/components/ImageUpload";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type Posts = Awaited<ReturnType<typeof getUserPosts>>;
@@ -57,6 +58,7 @@ function ProfilePageClient({
     bio: user.bio || "",
     location: user.location || "",
     website: user.website || "",
+    image: user.image || "",
   });
 
   const handleEditSubmit = async () => {
@@ -64,7 +66,7 @@ function ProfilePageClient({
     Object.entries(editForm).forEach(([key, value]) => {
       formData.append(key, value);
     });
-
+  
     const result = await updateProfile(formData);
     if (result.success) {
       setShowEditDialog(false);
@@ -227,6 +229,15 @@ function ProfilePageClient({
               <DialogTitle>Edit Profile</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
+              {/* Added this new section for profile picture */}
+              <div className="space-y-2">
+                <Label>Profile Picture</Label>
+                <ImageUpload
+                  endpoint="profileImage"
+                  value={editForm.image}
+                  onChange={(url) => setEditForm({ ...editForm, image: url })}
+                />
+              </div>
               <div className="space-y-2">
                 <Label>Name</Label>
                 <Input

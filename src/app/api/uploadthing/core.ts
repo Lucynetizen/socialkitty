@@ -12,11 +12,10 @@ export const ourFileRouter = {
     },
   })
     .middleware(async () => {
-      // this code runs on your server before upload
+      // this code runs on the server before upload
       const { userId } = await auth();
       if (!userId) throw new Error("Unauthorized");
 
-      // whatever is returned here is accessible in onUploadComplete as `metadata`
       return { userId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
@@ -24,6 +23,28 @@ export const ourFileRouter = {
         return { fileUrl: file.url };
       } catch (error) {
         console.error("Error in onUploadComplete:", error);
+        throw error;
+      }
+    }),
+
+  // New route for profile image uploads
+  profileImage: f({
+    image: {
+      maxFileSize: "2MB",
+      maxFileCount: 1,
+    },
+  })
+    .middleware(async () => {
+      const { userId } = await auth();
+      if (!userId) throw new Error("Unauthorized");
+
+      return { userId };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      try {
+        return { fileUrl: file.url };
+      } catch (error) {
+        console.error("Error in onUploadComplete for profile image:", error);
         throw error;
       }
     }),

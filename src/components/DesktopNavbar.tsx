@@ -41,7 +41,7 @@ async function DesktopNavbar() {
         </>
       ) : (
         <SignInButton mode="modal">
-          <Button variant="default">Sign In</Button>
+          <Button className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-white hover:opacity-90 animate-gradient">Sign In</Button>
         </SignInButton>
       )}
     </div>

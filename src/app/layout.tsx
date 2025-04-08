@@ -19,8 +19,11 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Socially",
-  description: "A modern social media application powered by Next.js",
+  title: "Social Kitty ᓚ₍⑅^. .^₎♡",
+  description: "Your cute social app ♡",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
