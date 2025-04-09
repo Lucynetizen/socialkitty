@@ -17,7 +17,7 @@ async function Navbar() {
               SOCIAL KITTY ฅᨐฅ
             </Link>
           </div>
-
+          
           <DesktopNavbar />
           <MobileNavbar />
         </div>

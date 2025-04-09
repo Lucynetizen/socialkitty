@@ -23,23 +23,26 @@ model User {
   image String?
   location String?
   website String?
-  createdAt DateTime @default(now()) // member since 2020
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations: 
-  posts Post[] // One-to-many
-  comments Comment[] // One-to-many
-  likes Like[] // One-to-many
+  posts Post[]
+  comments Comment[]
+  likes Like[]
 
-  followers Follows[] @relation("following") // users who follow this user
-  following Follows[] @relation("follower") // users this user follows
+  followers Follows[] @relation("following")
+  following Follows[] @relation("follower")
 
-  notifications Notification[] @relation("userNotifications") // notifications received by a user
-  notificationsCreated Notification[] @relation("notificationCreator") // notifications triggered by a user
+  notifications Notification[] @relation("userNotifications")
+  notificationsCreated Notification[] @relation("notificationCreator")
+
+  // Add these indexes for search optimization
+  @@index([username])
+  @@index([name])
 }
 
-
-model Post{
+model Post {
   id        String    @id @default(cuid())
   authorId String
   content String?
@@ -48,10 +51,13 @@ model Post{
   updatedAt DateTime  @updatedAt
 
   // Relations
-  author User @relation(fields: [authorId],references: [id], onDelete: Cascade) // cascade delete means delete all posts if author is deleted
+  author User @relation(fields: [authorId],references: [id], onDelete: Cascade)
   comments Comment[]
   likes Like[]
   notifications Notification[]
+
+  // Add this index for content search
+  @@index([content])
 }
 
 

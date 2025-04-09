@@ -9,7 +9,7 @@ import ProfilePageClient from "./ProfilePageClient";
 
 export async function generateMetadata({ params }: { params: { username: string } }) {
   const user = await getProfileByUsername(params.username);
-  if (!user) return;
+  if (!user) return null;
 
   return {
     title: `${user.name ?? user.username}`,
