@@ -27,7 +27,7 @@ export const ourFileRouter = {
       }
     }),
 
-  // New route for profile image uploads
+  // route for profile image uploads
   profileImage: f({
     image: {
       maxFileSize: "2MB",
@@ -45,6 +45,28 @@ export const ourFileRouter = {
         return { fileUrl: file.url };
       } catch (error) {
         console.error("Error in onUploadComplete for profile image:", error);
+        throw error;
+      }
+    }),
+    
+  // route for group message image uploads
+  messageImage: f({
+    image: {
+      maxFileSize: "4MB",
+      maxFileCount: 1,
+    },
+  })
+    .middleware(async () => {
+      const { userId } = await auth();
+      if (!userId) throw new Error("Unauthorized");
+
+      return { userId };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      try {
+        return { fileUrl: file.url };
+      } catch (error) {
+        console.error("Error in onUploadComplete for message image:", error);
         throw error;
       }
     }),

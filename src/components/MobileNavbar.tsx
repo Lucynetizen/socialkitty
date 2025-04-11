@@ -8,6 +8,7 @@ import {
   MoonIcon,
   SunIcon,
   UserIcon,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -64,6 +65,12 @@ function MobileNavbar() {
                   <Link href="/profile">
                     <UserIcon className="w-4 h-4" />
                     Profile
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="flex items-center gap-2" asChild>
+                  <Link href="/groups">
+                    <Users className="w-4 h-4" />
+                    <span className="hidden lg:inline">Groups</span>
                   </Link>
                 </Button>
                 <SignOutButton>

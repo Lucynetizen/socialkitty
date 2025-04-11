@@ -46,6 +46,22 @@ export async function searchContent(query: string) {
       take: 5,
     });
     
+    // Search for groups
+    const groups = await prisma.group.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+      },
+      take: 5,
+    });
+    
     // Format results
     const formattedUsers = users.map(user => ({
       id: user.id,
@@ -62,7 +78,14 @@ export async function searchContent(query: string) {
       authorImage: post.author.image || undefined,  
     }));
     
-    return [...formattedUsers, ...formattedPosts];
+    const formattedGroups = groups.map(group => ({
+      id: group.id,
+      type: 'group' as const,
+      name: group.name,
+      image: group.image || undefined,
+    }));
+    
+    return [...formattedUsers, ...formattedPosts, ...formattedGroups];
   } catch (error) {
     console.error('Search error:', error);
     throw new Error('Failed to search content');
