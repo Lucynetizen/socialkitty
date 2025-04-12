@@ -1,6 +1,7 @@
 "use client";
 
 import { createComment, deletePost, getPosts, toggleLike } from "@/actions/post.action";
+import { toggleBookmark } from "@/actions/bookmark.action"; 
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -10,8 +11,10 @@ import { Avatar, AvatarImage } from "./ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
 import { Button } from "./ui/button";
-import { HeartIcon, LogInIcon, MessageCircleIcon, SendIcon } from "lucide-react";
+import { BookmarkIcon, HeartIcon, LogInIcon, MessageCircleIcon, SendIcon } from "lucide-react";
 import { Textarea } from "./ui/textarea";
+import BookmarkButton from "./BookmarkButton";
+import SharePostButton from "./SharePostButton";
 
 type Posts = Awaited<ReturnType<typeof getPosts>>;
 type Post = Posts[number];
@@ -22,8 +25,11 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
   const [isCommenting, setIsCommenting] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isBookmarking, setIsBookmarking] = useState(false);
   const [hasLiked, setHasLiked] = useState(post.likes.some((like) => like.userId === dbUserId));
+  const [hasBookmarked, setHasBookmarked] = useState(post.bookmarks?.some((bookmark: { userId: string | null; }) => bookmark.userId === dbUserId) || false);
   const [optimisticLikes, setOptmisticLikes] = useState(post._count.likes);
+  const [optimisticBookmarks, setOptimisticBookmarks] = useState(post._count?.bookmarks || 0);
   const [showComments, setShowComments] = useState(false);
 
   const handleLike = async () => {
@@ -38,6 +44,26 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
       setHasLiked(post.likes.some((like) => like.userId === dbUserId));
     } finally {
       setIsLiking(false);
+    }
+  };
+  
+  const handleBookmark = async () => {
+    if (isBookmarking || !dbUserId) return;
+    try {
+      setIsBookmarking(true);
+      setHasBookmarked((prev: any) => !prev);
+      setOptimisticBookmarks((prev: string | number) => {
+        // Convert prev to number to ensure we can add to it
+        const prevNum = typeof prev === 'string' ? parseInt(prev, 10) : prev;
+        return prevNum + (hasBookmarked ? -1 : 1);
+      });
+      await toggleBookmark(post.id);
+    } catch (error) {
+      setHasBookmarked(post.bookmarks?.some((bookmark) => bookmark.userId === dbUserId) || false);
+      setOptimisticBookmarks(post._count?.bookmarks || 0);
+      toast.error("Failed to bookmark post");
+    } finally {
+      setIsBookmarking(false);
     }
   };
 
@@ -114,7 +140,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
             </div>
           )}
 
-          {/* LIKE & COMMENT BUTTONS */}
+          {/* LIKE, COMMENT & BOOKMARK BUTTONS */}
           <div className="flex items-center pt-2 space-x-4">
             {user ? (
               <Button
@@ -152,6 +178,34 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
               />
               <span>{post.comments.length}</span>
             </Button>
+            
+            {/* Bookmark Button */}
+            {user ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`text-muted-foreground gap-2 ${
+                  hasBookmarked ? "text-yellow-500 hover:text-yellow-600" : "hover:text-yellow-500"
+                }`}
+                onClick={handleBookmark}
+                disabled={isBookmarking}
+              >
+                {hasBookmarked ? (
+                  <BookmarkIcon className="size-5 fill-current" />
+                ) : (
+                  <BookmarkIcon className="size-5" />
+                )}
+                <span>{optimisticBookmarks}</span>
+              </Button>
+            ) : (
+              <SignInButton mode="modal">
+                <Button variant="ghost" size="sm" className="text-muted-foreground gap-2">
+                  <BookmarkIcon className="size-5" />
+                  <span>{post._count?.bookmarks || 0}</span>
+                </Button>
+              </SignInButton>
+            )}
+            <SharePostButton postId={post.id} />
           </div>
 
           {/* COMMENTS SECTION */}

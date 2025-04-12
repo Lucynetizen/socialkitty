@@ -61,10 +61,16 @@ export async function getPosts() {
             userId: true,
           },
         },
+        bookmarks: {
+          select: {
+            userId: true,
+          },
+        },
         _count: {
           select: {
             likes: true,
             comments: true,
+            bookmarks: true,
           },
         },
       },
@@ -211,5 +217,114 @@ export async function deletePost(postId: string) {
   } catch (error) {
     console.error("Failed to delete post:", error);
     return { success: false, error: "Failed to delete post" };
+  }
+}
+
+export async function toggleBookmark(postId: string) {
+  try {
+    const userId = await getDbUserId();
+    if (!userId) return;
+
+    // check if bookmark exists
+    const existingBookmark = await prisma.bookmark.findUnique({
+      where: {
+        userId_postId: {
+          userId,
+          postId,
+        },
+      },
+    });
+
+    if (existingBookmark) {
+      // remove bookmark
+      await prisma.bookmark.delete({
+        where: {
+          userId_postId: {
+            userId,
+            postId,
+          },
+        },
+      });
+    } else {
+      // add bookmark
+      await prisma.bookmark.create({
+        data: {
+          userId,
+          postId,
+        },
+      });
+    }
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to toggle bookmark:", error);
+    return { success: false, error: "Failed to toggle bookmark" };
+  }
+}
+export async function getUserBookmarks() {
+  try {
+    const userId = await getDbUserId();
+    if (!userId) return [];
+
+    const bookmarkedPosts = await prisma.post.findMany({
+      where: {
+        bookmarks: {
+          some: {
+            userId,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            username: true,
+          },
+        },
+        comments: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+                name: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        bookmarks: {
+          select: {
+            userId: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+            bookmarks: true,
+          },
+        },
+      },
+    });
+
+    return bookmarkedPosts;
+  } catch (error) {
+    console.error("Failed to fetch bookmarks:", error);
+    throw new Error("Failed to fetch bookmarks");
   }
 }

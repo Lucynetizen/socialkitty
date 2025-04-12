@@ -44,6 +44,12 @@ model User {
   createdGroups      Group[]         @relation("CreatedGroups")
   groupMemberships   GroupMember[]
   groupMessages      GroupMessage[]
+
+  bookmarks Bookmark[]
+
+  badgeText        String?   @db.VarChar(30) // Limit to 30 chars (roughly 3 words)
+  badgeColor       String?   @default("blue") // Default badge color
+  badgeEnabled     Boolean   @default(false) // Whether badge is displayed
 }
 
 model Post {
@@ -60,10 +66,25 @@ model Post {
   likes Like[]
   notifications Notification[]
 
+  bookmarks Bookmark[]
+
   // Add this index for content search
   @@index([content])
 }
 
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+}
 
 model Comment{
   id String @id @default(cuid())

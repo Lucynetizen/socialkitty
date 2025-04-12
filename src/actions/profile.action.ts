@@ -18,6 +18,9 @@ export async function getProfileByUsername(username: string) {
         location: true,
         website: true,
         createdAt: true,
+        badgeText: true,
+        badgeColor: true,
+        badgeEnabled: true,
         _count: {
           select: {
             followers: true,
@@ -70,10 +73,16 @@ export async function getUserPosts(userId: string) {
             userId: true,
           },
         },
+        bookmarks: {
+          select: {
+            userId: true,
+          },
+        },  
         _count: {
           select: {
             likes: true,
             comments: true,
+            bookmarks: true,
           },
         },
       },
@@ -119,26 +128,24 @@ export async function getUserLikedPosts(userId: string) {
               },
             },
           },
-          orderBy: {
-            createdAt: "asc",
-          },
+          orderBy: { createdAt: "asc" },
         },
         likes: {
-          select: {
-            userId: true,
-          },
+          select: { userId: true },
+        },
+        bookmarks: {
+          select: { userId: true },
         },
         _count: {
           select: {
             likes: true,
             comments: true,
+            bookmarks: true,
           },
         },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
     });
+    
 
     return likedPosts;
   } catch (error) {

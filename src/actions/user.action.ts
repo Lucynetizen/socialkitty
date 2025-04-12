@@ -160,3 +160,50 @@ export async function toggleFollow(targetUserId: string) {
     return { success: false, error: "Error toggling follow" };
   }
 }
+
+// Add the interface for the badge data
+interface UpdateBadgeData {
+  badgeText?: string;
+  badgeColor?: string;
+  badgeEnabled?: boolean;
+}
+
+// Add the function to update user badge
+export async function updateUserBadge(data: UpdateBadgeData) {
+  try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+    // Validate badge text (max length already enforced by the form)
+    if (data.badgeText && data.badgeText.split(" ").length > 3) {
+      throw new Error("Badge text cannot exceed 3 words");
+    }
+    // Valid colors
+    const validColors = [
+      "blue", "green", "red", "yellow", "purple", 
+      "pink", "indigo", "orange", "teal", "gray"
+    ];
+    
+    if (data.badgeColor && !validColors.includes(data.badgeColor)) {
+      throw new Error("Invalid badge color");
+    }
+    // Update user
+    await prisma.user.update({
+      where: { clerkId: userId },
+      data: {
+        badgeText: data.badgeText,
+        badgeColor: data.badgeColor,
+        badgeEnabled: data.badgeEnabled,
+      },
+    });
+    
+    // Revalidate the path to ensure the UI reflects the changes
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating user badge:", error);
+    throw new Error("Failed to update badge");
+  }
+}

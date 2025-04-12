@@ -1,6 +1,6 @@
 "use client";
 
-import { BellIcon, HomeIcon, UserIcon, Users } from "lucide-react";
+import { BellIcon, BookmarkIcon, HomeIcon, UserIcon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
@@ -30,6 +30,12 @@ function DesktopNavbar() {
 
       {user ? (
         <>
+          <Button variant="ghost" className="flex items-center gap-2" asChild>
+            <Link href="/bookmarks">
+              <BookmarkIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Bookmarks</span>
+            </Link>
+          </Button>
           <Button variant="ghost" className="flex items-center gap-2" asChild>
             <Link href="/notifications">
               <BellIcon className="w-4 h-4" />

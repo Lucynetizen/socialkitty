@@ -10,7 +10,7 @@ export default async function GroupsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Groups</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 via-blue-500 to-pink-500 bg-clip-text text-transparent animate-gradient">Your Groups</h1>
         <Link href="/groups/create">
           <Button className="flex items-center gap-2">
             <Plus size={16} />

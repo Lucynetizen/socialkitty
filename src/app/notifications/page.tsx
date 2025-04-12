@@ -56,7 +56,7 @@ function NotificationsPage() {
     <div className="space-y-4">
       <Card>
         <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text text-transparent animate-gradient">
             <CardTitle>Notifications</CardTitle>
             <span className="text-sm text-muted-foreground">
               {notifications.filter((n) => !n.read).length} unread

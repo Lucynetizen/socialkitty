@@ -8,6 +8,14 @@ const config: Config = withUt({
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: [
+    {
+      pattern: /bg-(blue|green|red|yellow|purple|pink|indigo|orange|teal|gray)-100/,
+    },
+    {
+      pattern: /border-(blue|green|red|yellow|purple|pink|indigo|orange|teal|gray)-300/,
+    },
+  ],
   theme: {
     extend: {
       colors: {

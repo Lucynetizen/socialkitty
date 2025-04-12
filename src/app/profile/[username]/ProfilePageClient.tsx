@@ -1,7 +1,7 @@
 "use client";
 
 import { getProfileByUsername, getUserPosts, updateProfile } from "@/actions/profile.action";
-import { toggleFollow } from "@/actions/user.action";
+import { toggleFollow, updateUserBadge } from "@/actions/user.action";
 import PostCard from "@/components/PostCard";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { SignInButton, useUser } from "@clerk/nextjs";
@@ -31,6 +32,7 @@ import {
 import { useState } from "react";
 import toast from "react-hot-toast";
 import ImageUpload from "@/components/ImageUpload";
+import CustomBadge from "@/components/CustomBadge";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type Posts = Awaited<ReturnType<typeof getUserPosts>>;
@@ -41,6 +43,11 @@ interface ProfilePageClientProps {
   likedPosts: Posts;
   isFollowing: boolean;
 }
+
+const BADGE_COLORS = [
+  "blue", "green", "red", "yellow", "purple", 
+  "pink", "indigo", "orange", "teal", "gray"
+];
 
 function ProfilePageClient({
   isFollowing: initialIsFollowing,
@@ -58,19 +65,42 @@ function ProfilePageClient({
     bio: user.bio || "",
     location: user.location || "",
     website: user.website || "",
-    image: user.image || "",
+    image: user.image,
+    badgeText: user.badgeText || "",
+    badgeColor: user.badgeColor || "blue",
+    badgeEnabled: user.badgeEnabled || false,
   });
 
   const handleEditSubmit = async () => {
     const formData = new FormData();
-    Object.entries(editForm).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+    
+    // Handle basic profile fields (string values)
+    formData.append("name", editForm.name);
+    formData.append("bio", editForm.bio);
+    formData.append("location", editForm.location);
+    formData.append("website", editForm.website);
+    
+    // Handle image separately - only append if it's not null
+    if (editForm.image) {
+      formData.append("image", editForm.image);
+    }
   
     const result = await updateProfile(formData);
-    if (result.success) {
-      setShowEditDialog(false);
-      toast.success("Profile updated successfully");
+    
+    try {
+      // Update badge separately
+      await updateUserBadge({
+        badgeText: editForm.badgeText,
+        badgeColor: editForm.badgeColor,
+        badgeEnabled: editForm.badgeEnabled
+      });
+      
+      if (result.success) {
+        setShowEditDialog(false);
+        toast.success("Profile updated successfully");
+      }
+    } catch (error) {
+      toast.error("Failed to update badge settings");
     }
   };
 
@@ -104,7 +134,15 @@ function ProfilePageClient({
                 <Avatar className="w-24 h-24">
                   <AvatarImage src={user.image ?? "/avatar.png"} />
                 </Avatar>
-                <h1 className="mt-4 text-2xl font-bold">{user.name ?? user.username}</h1>
+                <h1 className="mt-4 text-2xl font-bold">
+                  {user.name ?? user.username}
+                  {/* Display badge if enabled - added null check and default for color */}
+                  {user.badgeEnabled && user.badgeText && (
+                    <div className="inline-block ml-2">
+                      <CustomBadge text={user.badgeText} color={user.badgeColor || "blue"} />
+                    </div>
+                  )}
+                </h1>
                 <p className="text-muted-foreground">@{user.username}</p>
                 <p className="mt-2 text-sm">{user.bio}</p>
 
@@ -224,12 +262,12 @@ function ProfilePageClient({
         </Tabs>
 
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto custom-scrollbar">
             <DialogHeader>
               <DialogTitle>Edit Profile</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              {/* Added this new section for profile picture */}
+              {/* Profile picture */}
               <div className="space-y-2">
                 <Label>Profile Picture</Label>
                 <ImageUpload
@@ -274,6 +312,70 @@ function ProfilePageClient({
                   onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
                   placeholder="Your personal website"
                 />
+              </div>
+
+              {/* Badge settings */}
+              <Separator className="my-4" />
+              
+              <div className="space-y-2">
+                <Label htmlFor="badgeText">Badge Text (max 30 characters)</Label>
+                <Input
+                  id="badgeText"
+                  value={editForm.badgeText}
+                  onChange={(e) => setEditForm({ ...editForm, badgeText: e.target.value })}
+                  maxLength={30}
+                  placeholder="Enter badge text"
+                />
+                <p className="text-sm text-muted-foreground">
+                  {editForm.badgeText.length}/30 characters
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Badge Color</Label>
+                <div className="flex flex-wrap gap-2">
+                  {BADGE_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setEditForm({ ...editForm, badgeColor: color })}
+                      className={`w-8 h-8 rounded-full border transition-all 
+                        bg-${color}-100 border-${color}-300 
+                        ${editForm.badgeColor === color ? "ring-2 ring-offset-2 ring-blue-500" : ""}`}
+                      aria-label={`${color} color`}
+                    />
+                  
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="badgeEnabled">Display Badge</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Toggle to show or hide your badge
+                  </p>
+                </div>
+                <Switch
+                  id="badgeEnabled"
+                  checked={editForm.badgeEnabled}
+                  onCheckedChange={(checked) => setEditForm({ ...editForm, badgeEnabled: checked })}
+                />
+              </div>
+
+              <div className="pt-4">
+                <Label>Badge Preview</Label>
+                <div className="p-4 border rounded-md bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                  {editForm.badgeEnabled && editForm.badgeText ? (
+                    <CustomBadge text={editForm.badgeText} color={editForm.badgeColor || "blue"} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {!editForm.badgeEnabled 
+                        ? "Badge is disabled" 
+                        : "Enter badge text to preview"}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex justify-end gap-3">

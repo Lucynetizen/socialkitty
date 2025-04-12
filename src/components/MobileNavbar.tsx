@@ -2,6 +2,7 @@
 
 import {
   BellIcon,
+  BookmarkIcon,
   HomeIcon,
   LogOutIcon,
   MenuIcon,
@@ -56,6 +57,12 @@ function MobileNavbar() {
             {isSignedIn ? (
               <>
                 <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+                  <Link href="/bookmarks">
+                    <BookmarkIcon className="w-4 h-4" />
+                    Bookmarks
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
                   <Link href="/notifications">
                     <BellIcon className="w-4 h-4" />
                     Notifications
@@ -67,10 +74,10 @@ function MobileNavbar() {
                     Profile
                   </Link>
                 </Button>
-                <Button variant="ghost" className="flex items-center gap-2" asChild>
+                <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
                   <Link href="/groups">
                     <Users className="w-4 h-4" />
-                    <span className="hidden lg:inline">Groups</span>
+                    Groups
                   </Link>
                 </Button>
                 <SignOutButton>
