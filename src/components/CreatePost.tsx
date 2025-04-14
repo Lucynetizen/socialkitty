@@ -63,7 +63,7 @@ function CreatePost() {
                 endpoint="postImage"
                 value={imageUrl}
                 onChange={(url) => {
-                  setImageUrl(url);
+                  setImageUrl(url || '');
                   if (!url) setShowImageUpload(false);
                 }}
               />

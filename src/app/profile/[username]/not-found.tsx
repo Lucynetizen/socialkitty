@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { HomeIcon, ArrowLeftIcon } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default function NotFound() {
   return (
     <div className="min-h-[80vh] grid place-items-center px-4">
