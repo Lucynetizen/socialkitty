@@ -44,6 +44,7 @@ export async function createGroup(formData: FormData) {
 export async function getGroups(query?: string) {
   try {
     const userId = await getDbUserId();
+    if (!userId) throw new Error("Authentication required");
     
     const groups = await prisma.group.findMany({
       where: query ? {
