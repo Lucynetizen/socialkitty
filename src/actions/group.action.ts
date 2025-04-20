@@ -60,10 +60,10 @@ export async function getGroups(query?: string) {
           },
         },
         members: {
-          where: userId ? {
+          where: {
             userId,
-          } : undefined,
-          take: userId ? 1 : 0,
+          },
+          take: 1,
         },
       },
       orderBy: {

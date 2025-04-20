@@ -13,7 +13,7 @@ function DesktopNavbar() {
   return (
     <div className="hidden md:flex items-center space-x-4">
       <ModeToggle />
-      <SearchBar />
+      
 
       <Button variant="ghost" className="flex items-center gap-2" asChild>
         <Link href="/">
@@ -21,19 +21,21 @@ function DesktopNavbar() {
           <span className="hidden lg:inline">Home</span>
         </Link>
       </Button>
-      <Button variant="ghost" className="flex items-center gap-2" asChild>
-        <Link href="/groups">
-          <Users className="w-4 h-4" />
-          <span className="hidden lg:inline">Groups</span>
-        </Link>
-      </Button>
+      
 
       {user ? (
         <>
+        <SearchBar />
           <Button variant="ghost" className="flex items-center gap-2" asChild>
             <Link href="/bookmarks">
               <BookmarkIcon className="w-4 h-4" />
               <span className="hidden lg:inline">Bookmarks</span>
+            </Link>
+          </Button>
+          <Button variant="ghost" className="flex items-center gap-2" asChild>
+            <Link href="/groups">
+              <Users className="w-4 h-4" />
+              <span className="hidden lg:inline">Groups</span>
             </Link>
           </Button>
           <Button variant="ghost" className="flex items-center gap-2" asChild>
