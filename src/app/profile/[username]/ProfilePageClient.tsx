@@ -33,6 +33,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import ImageUpload from "@/components/ImageUpload";
 import CustomBadge from "@/components/CustomBadge";
+import ChatButton from "@/components/ChatButton";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type Posts = Awaited<ReturnType<typeof getUserPosts>>;
@@ -177,14 +178,17 @@ function ProfilePageClient({
                     Edit Profile
                   </Button>
                 ) : (
-                  <Button
-                    className="w-full mt-4"
-                    onClick={handleFollow}
-                    disabled={isUpdatingFollow}
-                    variant={isFollowing ? "outline" : "default"}
-                  >
-                    {isFollowing ? "Unfollow" : "Follow"}
-                  </Button>
+                  <div className="w-full mt-4 flex gap-2">
+                    <Button
+                      className="flex-1"
+                      onClick={handleFollow}
+                      disabled={isUpdatingFollow}
+                      variant={isFollowing ? "outline" : "default"}
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </Button>
+                    <ChatButton userId={user.id} className="flex-none" />
+                  </div>
                 )}
 
                 {/* LOCATION & WEBSITE */}

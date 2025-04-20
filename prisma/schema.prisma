@@ -50,6 +50,47 @@ model User {
   badgeText        String?   @db.VarChar(30) // Limit to 30 chars (roughly 3 words)
   badgeColor       String?   @default("blue") // Default badge color
   badgeEnabled     Boolean   @default(false) // Whether badge is displayed
+
+  sentChats       DirectChat[]     @relation("ChatSender")
+  receivedChats   DirectChat[]     @relation("ChatReceiver")
+  sentMessages    DirectMessage[]  @relation("MessageSender")
+}
+
+model DirectChat {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships - a conversation always has two participants
+  sender      User      @relation("ChatSender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId    String
+  receiver    User      @relation("ChatReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId  String
+  
+  messages    DirectMessage[]
+  
+  // Ensure no duplicate conversations between the same users
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+model DirectMessage {
+  id          String    @id @default(cuid())
+  content     String?
+  image       String?
+  read        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships
+  sender      User      @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId    String
+  chat        DirectChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId      String
+  
+  @@index([chatId, createdAt])
+  @@index([senderId])
 }
 
 model Post {

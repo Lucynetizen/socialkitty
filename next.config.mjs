@@ -7,6 +7,9 @@ const nextConfig = {
     // This is safer than the previous configuration
     runtime: 'nodejs',
   },
+  images: {
+    domains: ['img.clerk.com'],
+  },
   // Bypass any errors during build
   typescript: {
     ignoreBuildErrors: true,
