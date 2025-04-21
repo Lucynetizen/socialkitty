@@ -28,14 +28,9 @@ type ChatPreview = {
   updatedAt: Date;
 };
 
-interface DirectMessagesListProps {
-  initialChats?: ChatPreview[];
-}
-
-export default function DirectMessagesList({ initialChats = [] }: DirectMessagesListProps) {
-  const [chats, setChats] = useState<ChatPreview[]>(initialChats);
-  const [loading, setLoading] = useState(!initialChats.length);
-  const totalUnreadMessages = chats.reduce((total, chat) => total + chat.unreadCount, 0);
+export default function DirectMessagesList() {
+  const [chats, setChats] = useState<ChatPreview[]>([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     const fetchChats = async () => {
@@ -50,25 +45,17 @@ export default function DirectMessagesList({ initialChats = [] }: DirectMessages
       }
     };
     
-    // If we have initial chats, use them, otherwise fetch
-    if (initialChats.length) {
-      setChats(initialChats);
-      setLoading(false);
-    } else {
-      fetchChats();
-    }
+    fetchChats();
     
     // Refresh chats every 30 seconds
     const interval = setInterval(fetchChats, 30000);
     return () => clearInterval(interval);
-  }, [initialChats]);
+  }, []);
   
   if (loading) {
     return (
       <div className="p-4 mt-4 bg-white dark:bg-black rounded-lg shadow transition-colors duration-300">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-lg text-gray-900 dark:text-white">Messages</h2>
-        </div>
+        <h2 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">Messages</h2>
         <div className="animate-pulse flex flex-col space-y-3">
           {[1, 2, 3].map(i => (
             <div key={i} className="flex items-center space-x-3">
@@ -86,14 +73,7 @@ export default function DirectMessagesList({ initialChats = [] }: DirectMessages
   
   return (
     <div className="p-4 mt-4 bg-white dark:bg-black rounded-lg shadow transition-colors duration-300">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="font-bold text-lg text-gray-900 dark:text-white">Messages</h2>
-        {totalUnreadMessages > 0 && (
-          <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
-            {totalUnreadMessages} unread
-          </span>
-        )}
-      </div>
+      <h2 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">Messages</h2>
       
       {chats.length === 0 ? (
         <p className="text-gray-500 dark:text-gray-400 text-sm">No messages yet</p>
