@@ -267,3 +267,30 @@ export async function getChatMessages(chatId: string) {
     return [];
   }
 }
+
+export async function getUnreadMessagesCount(): Promise<number> {
+  try {
+    const userId = await getDbUserId();
+    if (!userId) throw new Error("Not authorized");
+    
+    const count = await prisma.directMessage.count({
+      where: {
+        chat: {
+          OR: [
+            { senderId: userId },
+            { receiverId: userId }
+          ]
+        },
+        read: false,
+        senderId: {
+          not: userId,
+        },
+      },
+    });
+    
+    return count;
+  } catch (error) {
+    console.error("Error getting unread messages:", error);
+    return 0;
+  }
+}

@@ -6,6 +6,7 @@ import {
   HomeIcon,
   LogOutIcon,
   MenuIcon,
+  MessageCircleIcon,
   MoonIcon,
   SunIcon,
   UserIcon,
@@ -13,11 +14,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth, SignInButton, SignOutButton } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
+import { getUnreadMessagesCount } from "@/actions/direct-message.action";
 
 
 function MobileNavbar() {
@@ -25,7 +27,25 @@ function MobileNavbar() {
   const { isSignedIn } = useAuth();
   const { theme, setTheme } = useTheme();
   const { user } = useUser();
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
 
+  useEffect(() => {
+    if (isSignedIn) {
+      const fetchUnreadCount = async () => {
+        try {
+          const count = await getUnreadMessagesCount();
+          setUnreadMessagesCount(count);
+        } catch (error) {
+          console.error("Error fetching unread messages count:", error);
+        }
+      };
+      
+      fetchUnreadCount();
+      
+      const interval = setInterval(fetchUnreadCount, 60000); // update counter each minute
+      return () => clearInterval(interval);
+    }
+  }, [isSignedIn]);
 
   return (
     <div className="flex md:hidden items-center space-x-2">
@@ -60,6 +80,17 @@ function MobileNavbar() {
 
             {isSignedIn ? (
               <>
+                <Button variant="ghost" className="flex items-center gap-3 justify-start relative" asChild>
+                  <Link href="/messages">
+                    <MessageCircleIcon className="w-4 h-4" />
+                    Messages
+                    {unreadMessagesCount > 0 && (
+                      <span className="absolute top-0 right-0 h-5 w-5 text-xs flex items-center justify-center rounded-full bg-blue-500 text-white">
+                        {unreadMessagesCount}
+                      </span>
+                    )}
+                  </Link>
+                </Button>
                 <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
                   <Link href="/bookmarks">
                     <BookmarkIcon className="w-4 h-4" />
